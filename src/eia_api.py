@@ -1,29 +1,49 @@
 import requests
 import pandas as pd
 
-def fetch_eia_series(series_id: str, api_key: str) -> pd.DataFrame:
-    '''Function to take the name of an EIA data series and an API key
-    to return a pandas data frame.'''
+def fetch_eia_series(series_id: str, 
+                     api_key: str, 
+                     start: str = "2010-01-01") -> pd.DataFrame:
+    """
+    Fetch weekly natural gas data from the EIA v2 API.
+    """
     
-    url = "https://api.eia.gov/series"
+    # Construct URL and payload
+    url = "https://api.eia.gov/v2/natural-gas/stor/wkly/data/"
+    
+    # API parameters
     params = {
         "api_key": api_key,
-        "series_id": series_id
+        "frequency": "weekly",
+        "data[0]": "value",
+        "facets[series][]": series_id,
+        "start": start,
+        "sort[0][column]": "period",
+        "sort[0][direction]": "asc",
+        "offset": 0,
+        "length": 5000
     }
-
+    
+    # Make the GET request
     response = requests.get(url, params=params)
+    
+    # Check for HTTP errors
     response.raise_for_status()
-
-    payload = response.json()
-    series = payload["series"][0]
-    data = series["data"]
-
-    df = pd.DataFrame(data, columns=["date", "value"])
-
-    #parse date from str to datetime
-    df["date"] = pd.to_datetime(df["date"], format="%Y%m%d")
-
-    #sort with oldest first
-    df = df.sort_values("date").reset_index(drop=True)
+    
+    data = response.json()
+    
+    # Extract the data
+    try:
+        records = data['response']['data']
+    except KeyError:
+        raise ValueError("Unexpected response structure: ", data)
+    
+    # Convert to DataFrame
+    df = pd.DataFrame(records)
+    
+    # Ensure period is datetime and value is numeric
+    df['period'] = pd.to_datetime(df['period'])
+    df['value'] = pd.to_numeric(df['value'])
 
     return df
+
