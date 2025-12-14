@@ -25,29 +25,47 @@ df_price = (
     .rename(columns={"Date": "date", "Close": "hh_price"})
 )
 
-df_price["report_period"] = (
-    df_price["date"]
-    .dt.to_period("W-THU")
-    .dt.start_time
-)
 
-df_price_weekly = (
+'''Save the raw HH price data '''
+#raw_path = Path("../data/raw")
+#raw_path.mkdir(parents=True, exist_ok=True)
+
+#df_price.to_csv(
+#    raw_path / "HH_front_month.csv",
+#    index=False
+#)
+
+
+#df_storage["friday_after"] = df_storage["period"] + pd.Timedelta(days=0)
+df_storage = df_storage.set_index("period").sort_index()
+
+df_price = (
     df_price
-    .groupby("report_period")["hh_price"]
-    .mean()
-    .rename("hh_price")
-    .to_frame()
+    .set_index("date")
     .sort_index()
 )
 
-df_storage = df_storage.set_index("period").sort_index()
+df_price.index = df_price.index.tz_localize(None)
+
+hh_on_friday = df_price.reindex(
+    df_storage.index,
+    method="ffill"
+)
 
 df_final = pd.concat(
-    [df_storage, df_price_weekly],
+    [df_storage, hh_on_friday],
     axis=1
+)
+
+print(df_final)
+
+'''Save the processed file with HH and storage data '''
+
+df_final.to_csv(
+    processed_path / "storage_with_HH_prices.csv",
+    index=False
 )
 
 
 
-print(df_final)
 
