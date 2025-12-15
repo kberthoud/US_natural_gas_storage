@@ -5,4 +5,4 @@ Underground storage of natural gas is used to balance seasonality in US gas dema
 
 Market participants are accustomed to viewing the EIA's WNGSR through this lens, so this repo is simply pulling historical data to see how accurate this relationship is. The final output is the following chart, showing the reported surplus or deficit relative to the five-year average against prompt-month prices at Henry Hub on the Friday after the EIA's report is published. This passes a simple smell test by showing that surpluses do seem to dampen prices, while deficits seem to lift them. A naive correlation coefficient between the two variables = -0.4 indicating a moderate negative correlation. 
 
-![Henry Hub Prices vs Storage Surplus/Deficit](outputs/figures/hh_price_vs_storage_diff.png)
+![Henry Hub Prices vs Storage Surplus/Deficit](outputs/figures/storage_vs_HH.png)
