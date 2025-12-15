@@ -36,7 +36,6 @@ df_price = (
 #)
 
 
-#df_storage["friday_after"] = df_storage["period"] + pd.Timedelta(days=0)
 df_storage = df_storage.set_index("period").sort_index()
 
 df_price = (
@@ -63,7 +62,7 @@ print(df_final)
 
 df_final.to_csv(
     processed_path / "storage_with_HH_prices.csv",
-    index=False
+   #index=False
 )
 
 
